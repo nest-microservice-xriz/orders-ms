@@ -10,22 +10,22 @@ import { log } from 'console';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @MessagePattern({ cmd: 'create_order' })
+  @MessagePattern('createOrder')
   create(@Payload() createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);
   }
 
-  @MessagePattern({ cmd: 'find_all_orders' })
+  @MessagePattern('findAllOrders')
   findAll(@Payload() paginationDto: PaginationDto) {
     return this.ordersService.findAll(paginationDto);
   }
 
-  @MessagePattern({ cmd: 'find_one_order' })
+  @MessagePattern('findOneOrder')
   findOne(@Payload('id') id: string ) {
     return this.ordersService.findOne(id);
   }
 
-  @MessagePattern({ cmd: 'update_order_status' })
+  @MessagePattern({ cmd: 'changeOrderStatus' })
   updateOrder(
     @Payload('changeStatusDto') changeStatusDto: ChangeStatusDto,
   ) {
