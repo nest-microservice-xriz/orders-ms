@@ -1,19 +1,16 @@
-import { OrderStatusList } from './enum/order.enum';
 import { HttpStatus, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { OrderStatus, PrismaClient } from '@prisma/client';
-import { ChangeStatusDto, CreateOrderDto, UpdateOrderDto } from './dto';
-import { PaginationDto } from 'src/common/dto';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { OrderStatus, PrismaClient } from '@prisma/client';
 import { log } from 'console';
-import { PRODUCT_SERVICE } from 'src/conf';
 import { firstValueFrom } from 'rxjs';
-import { console } from 'inspector';
+import { PaginationDto } from 'src/common/dto';
+import { NATS_SERVICE } from 'src/conf';
+import { ChangeStatusDto, CreateOrderDto } from './dto';
 
 @Injectable()
 export class OrdersService extends PrismaClient implements OnModuleInit {
 
-
-  constructor(@Inject(PRODUCT_SERVICE) private readonly productClient: ClientProxy) {
+  constructor(@Inject(NATS_SERVICE) private readonly Client: ClientProxy) {
     super();
   }
 
@@ -29,7 +26,7 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
       
       const producsId:any[] = createOrderDto.items.map((item) => item.productId)
       const products: any[] = await firstValueFrom(
-        this.productClient.send({ cmd: 'validate_products' }, producsId )
+        this.Client.send({ cmd: 'validate_products' }, producsId )
       )
 
       const totalAmount = createOrderDto.items.reduce((acc, orderItem) => {
@@ -129,7 +126,7 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
 
     const productsId = await order.orderItem.map((orderItem) => (orderItem.productId))
     const products: any[] = await firstValueFrom(
-      this.productClient.send({ cmd: 'validate_products' }, productsId )
+      this.Client.send({ cmd: 'validate_products' }, productsId )
     )
 
     if (!order) {
